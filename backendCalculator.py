@@ -1,6 +1,8 @@
-
-#input number of exercises per week
-def stressFactor(epw):
+###########################################
+#Stress factor calculator for Mifflin-St.Jeor Equation based upon activity level
+#inputs: epw = number of exercises per week
+###########################################
+def StressFactor(epw):
 	#Sedentary. No exercise
 	if epw < 1:
 		return 1.2
@@ -20,18 +22,51 @@ def stressFactor(epw):
 	else:
 		return None
 
-#Simplified Mifflin-St.Jeor Equation
+#######################################
+#Simplified Mifflin-St.Jeor Equation for calculating TDEE
+#inputs:  sex: subset of ['f', 'F', 'm', 'M']
+#  age(years): 
+#  weight(kg):
+#  height(cm):
+#stressFactor: given by helper function StressFactor
+########################################
 def MifflinStJeorSimplified(sex, age, weight, height, stressFactor):
 	#make sure that stressFactor is valid. If not, set it to sedentary. 
 	if stressFactor == None:
 		stressFactor = 1.2
 	if sex.lower() == 'f':
-		REE = (10*weight + 6.25*height - 5*age - 161)*stressFactor #kg, cm, yrs
+		TDEE = (10*weight + 6.25*height - 5*age - 161)*stressFactor #kg, cm, yrs
 	elif sex.lower() == 'm':
-		REE = (10*weight + 6.25*height - 5*age - 5)*stressFactor #kg, cm, yrs
+		TDEE = (10*weight + 6.25*height - 5*age - 5)*stressFactor #kg, cm, yrs
 	else:
 		print "Please enter valid gender"
-		REE = None
-	return REE
+		TDEE = None
+	return TDEE
 
-print MifflinStJeorSimplified('f', 26, 69.4, 165, stressFactor(5))
+
+#nieoh 04/11/16 stats
+print MifflinStJeorSimplified('f', 26, 69.4, 165, StressFactor(5))
+
+################################################
+#TDEE adjustment calculator. 
+#Given average calories and average initial and average end weight for a week, outputs actual TDEE/day for the past week. 
+#inputs: calories(kJ): avg / day for the week
+#    startWeight(lbs): average weight from previous week (preferably at least 3 measurements)
+#	   endWeight(lbs): average weight from this week
+################################################
+def TDEEAdjustment(calories, startWeight, endWeight):
+	return calories - (endWeight - startWeight)*500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
