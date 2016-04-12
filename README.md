@@ -1,2 +1,2 @@
 # macro-calculator
-Macro-calculator API
+Macronutrient calculator API
