@@ -57,7 +57,15 @@ print "TDEE given by simplified Mifflin-St.Jeor formula: %d kJ" %(MifflinStJeorS
 #	   endWeight(lbs): average weight from this week
 ###################################################################
 def TDEEAdjustment(calories, startWeight, endWeight):
-	return calories - (endWeight - startWeight)*500
+	return math.floor(calories - (endWeight - startWeight)*500)
+
+###################################################################
+#Calculate calories allotment for a day given TDEE and weight change goals
+#inputs:  TDEE(kJ): calories for TDEE calculated
+#weightChange(lbs): desired positive or negative avg change in weight / week
+###################################################################
+def CaloriesAllotment(TDEE, weightChange):
+	return math.floor(TDEE + 500 * weightChange)
 
 ###################################################################
 #Calculate macronutrient split based upon a percentage split
@@ -67,24 +75,53 @@ def TDEEAdjustment(calories, startWeight, endWeight):
 #               fat(): % of calories allotted to fat in decimal
 #output: list of protein, carb, fat in grams
 ###################################################################
-def macroPercentageCalculator(calories, protein, carb, fat):
+def macroPercentage(calories, protein, carb, fat):
 	p = math.ceil((calories * protein)/4)
 	f = math.floor((calories * fat)/9)
 	c = math.ceil((calories * carb)/4)
 	return [p, c, f]
+
+###################################################################
+#Calculate protein based upon body weight and a percentage, fat by body weight and a percentage, and carbs as remainder
+#This is the method 3SFitness uses
+#Need more research on this formula
+#inputs: calories(kJ):
+#         weight(lbs):
+#           protein(): % of weight for protein given as decimal (usually between 0.6 - 1.2)
+#               fat(): % of weight for fat given as decimal (usually .3)
+###################################################################
+def macroBodyWeight(calories, weight, protein, fat):
+	p = math.ceil(weight * protein)
+	f = math.floor(weight * fat)
+	c = math.ceil((calories - p * 4 - f * 9)/4)
+	return [p, c, f]
+
+
 
 
 ###################################################################
 #General macronutrient calculator using specified method.
 #Methods include: Percentage split; body-weight specific protein & percentage fat
 #input: calories(kJ): calories to be split
+#         weight(lb): current weight in lbs
 ###################################################################
-def macroCalculator(calories, protein, carb, fat):
-	[p,c,f] = macroPercentageCalculator(calories, protein, carb, fat)
+def macroCalculator(calories, weight, protein, carb, fat, method):
+	if method == "percentage":
+		[p, c, f] = macroPercentage(calories, protein, carb, fat)
+	elif method == "bodyweight":
+		[p, c, f] = macroBodyWeight(calories, weight, protein, fat)
 	return "protein: %d g, carbs: %d g, fat: %d g" % (p, c, f)
 
-#nieoh current stats
-print macroCalculator(MifflinStJeorSimplified('f', 26, 69.4, 165, StressFactor(5)), .3, .4, .3)
+#nieoh current stats using % method
+print "Using percentage method: %s" % macroCalculator(MifflinStJeorSimplified('f', 26, 69.4, 165, StressFactor(5)), None,.3, .4, .3, "percentage")
+#nieoh current stats using bodyweight method
+print "Using bodyweight method: %s" % macroCalculator(MifflinStJeorSimplified('f', 26, 69.4, 165, StressFactor(5)), 153, 1.1, None, .3, "bodyweight")
+
+#nieoh current stats using bodyweight method with -1 lb / week goal
+TDEE = MifflinStJeorSimplified('f', 26, 69.4, 165, StressFactor(5))
+calories = CaloriesAllotment(TDEE, -1)
+print "Using bodyweight method with -1lb / week goal: %s" % macroCalculator(calories, 153, 1.1, None, .3, "bodyweight")
+
 
 
 
